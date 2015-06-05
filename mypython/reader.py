@@ -1,5 +1,7 @@
 import re
 
+import maltypes
+
 MATCH = """[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"`,;)]*)"""
 
 class Reader:
@@ -50,5 +52,6 @@ def read_atom(reader):
     try:
         res = int(atom)
     except:
-        res = atom
+        # It's not a number.
+        res = maltypes.Symbol(atom)
     return res

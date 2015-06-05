@@ -1,45 +1,45 @@
 #!/usr/bin/python
 
 from env import Env
-import printer, reader
+import maltypes, printer, reader
 
 repl_env = Env(None)
-repl_env.set("+", lambda x, y: x + y)
-repl_env.set("-", lambda x, y: x - y)
-repl_env.set("*", lambda x, y: x * y)
-repl_env.set("/", lambda x, y: int(x / y))
+repl_env.set(maltypes.Symbol("+"), lambda x, y: x + y)
+repl_env.set(maltypes.Symbol("-"), lambda x, y: x - y)
+repl_env.set(maltypes.Symbol("*"), lambda x, y: x * y)
+repl_env.set(maltypes.Symbol("/"), lambda x, y: int(x / y))
 
 def READ(line):
     return reader.read_str(line)
 
-def EVAL(dt, env):
-    if type(dt) == list:
-        if dt[0] == "def!":
-            val = EVAL(dt[2], env)
-            env.set(dt[1], val)
+def EVAL(mt, env):
+    if type(mt) == list:
+        if mt[0] == "def!":
+            val = EVAL(mt[2], env)
+            env.set(mt[1], val)
             return val
 
-        elif dt[0] == "let*":
+        elif mt[0] == "let*":
             new_env = Env(env)
-            bindings = dt[1]
+            bindings = mt[1]
             for i in range(0, len(bindings), 2):
                 val = EVAL(bindings[i+1], new_env)
                 new_env.set(bindings[i], val)
-            return EVAL(dt[2], new_env)
+            return EVAL(mt[2], new_env)
 
         else:
-            l = eval_ast(dt, env)
+            l = eval_ast(mt, env)
             f = l[0]
             return f(*l[1:])
 
     else:
-        return eval_ast(dt, env)
+        return eval_ast(mt, env)
 
-def PRINT(dt):
-    return printer.pr_str(dt)
+def PRINT(mt):
+    return printer.pr_str(mt)
 
 def eval_ast(ast, env):
-    if type(ast) == str:
+    if type(ast) == maltypes.Symbol:
         return env.get(ast)
     elif type(ast) == list:
         return [EVAL(e, env) for e in ast]
