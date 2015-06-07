@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
+import sys
+
 import core
 from env import Env
 import maltypes, printer, reader
 
 repl_env = Env(None)
-for sym, d in core.ns.iteritems():
-    repl_env.set(sym, d)
 
 def READ(line):
     return reader.read_str(line)
@@ -31,9 +31,9 @@ def EVAL(ast, env):
                 continue
 
             elif ast[0] == "do":
-                # elements = [eval_ast(e, env) for e in ast[1:]]
+                # elements = eval_ast(ast[1:], env)
                 # return elements[-1]
-                [eval_ast(e, env) for e in ast[1:-1]]
+                eval_ast(ast[1:-1], env)
                 ast = ast[-1]
                 continue
 
@@ -63,12 +63,12 @@ def EVAL(ast, env):
                     ast = f.ast
                     new_env = Env(f.env, f.params, l[1:])
                     env = new_env
+                    continue
                 else:
                     return f(*l[1:])
 
         else:
-            res = eval_ast(ast, env)
-            return res
+            return eval_ast(ast, env)
 
 def PRINT(ast):
     res = printer.pr_str(ast, print_readably=True)
@@ -86,6 +86,19 @@ def rep(line):
     return PRINT(EVAL(READ(line), repl_env))
 
 def main():
+    for sym, d in core.ns.iteritems():
+        repl_env.set(sym, d)
+
+    repl_env.set("eval", lambda ast: EVAL(ast, repl_env))
+
+    rep('(def! not (fn* (a) (if a false true)))')
+    rep('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) ")")))))')
+
+    repl_env.set("*ARGV*", sys.argv[2:])
+    if len(sys.argv) > 1:
+        rep('(load-file "%s")' % sys.argv[1])
+        sys.exit(0)
+
     while True:
         try:
             line = raw_input("user> ")

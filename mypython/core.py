@@ -1,4 +1,5 @@
 import maltypes
+import printer, reader
 
 ns = {}
 
@@ -35,3 +36,30 @@ ns[maltypes.Symbol("<")] = lambda x, y: x < y
 ns[maltypes.Symbol("<=")] = lambda x, y: x <= y
 ns[maltypes.Symbol(">")] = lambda x, y: x > y
 ns[maltypes.Symbol(">=")] = lambda x, y: x >= y
+
+ns[maltypes.Symbol("pr-str")] = lambda *args: " ".join(
+        [printer.pr_str(arg, True) for arg in args])
+
+ns[maltypes.Symbol("str")] = lambda *args: "".join(
+        [printer.pr_str(arg, False) for arg in args])
+
+def prn(*args):
+    s = " ".join([printer.pr_str(arg, True) for arg in args])
+    print s
+    return None
+
+def println(*args):
+    s = "".join([printer.pr_str(arg, False) for arg in args])
+    print s
+    return None
+
+ns[maltypes.Symbol("prn")] = prn
+ns[maltypes.Symbol("println")] = println
+
+ns[maltypes.Symbol("read-string")] = reader.read_str
+
+def slurp(filename):
+    with open(filename) as f:
+        return f.read()
+
+ns[maltypes.Symbol("slurp")] = slurp

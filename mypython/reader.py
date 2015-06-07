@@ -56,18 +56,20 @@ def read_seq(reader, b, e):
     return res
 
 def read_atom(reader):
-    atom = reader.next()
+    token = reader.next()
     res = None
     try:
-        res = int(atom)
+        res = int(token)
     except:
         # It's not a number.
-        if atom == "nil":
+        if token == "nil":
             res = None
-        elif atom == "true":
+        elif token == "true":
             res = True
-        elif atom == "false":
+        elif token == "false":
             res = False
+        elif token[0] == '"':
+            res = token[1:-1].replace(r'\"', '"')
         else:
-            res = maltypes.Symbol(atom)
+            res = maltypes.Symbol(token)
     return res
