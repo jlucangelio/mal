@@ -35,23 +35,39 @@ def read_form(reader):
     c = token[0]
     if c == "(":
         res = read_list(reader)
+    elif c == "[":
+        res = read_vector(reader)
     else:
         res = read_atom(reader)
     return res
 
 def read_list(reader):
+    return read_seq(reader, "(", ")")
+
+def read_vector(reader):
+    return read_seq(reader, "[", "]")
+
+def read_seq(reader, b, e):
     res = []
-    reader.next() # consume (
-    while reader.peek()[0] != ")":
+    reader.next() # consume b
+    while reader.peek()[0] != e:
         res.append(read_form(reader))
-    reader.next() # consume )
+    reader.next() # consume e
     return res
 
 def read_atom(reader):
     atom = reader.next()
+    res = None
     try:
         res = int(atom)
     except:
         # It's not a number.
-        res = maltypes.Symbol(atom)
+        if atom == "nil":
+            res = None
+        elif atom == "true":
+            res = True
+        elif atom == "false":
+            res = False
+        else:
+            res = maltypes.Symbol(atom)
     return res
