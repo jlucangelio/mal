@@ -18,6 +18,16 @@ class Symbol(Type):
     def __str__(self):
         return self.name
 
+class Function(Type):
+    def __init__(self, ast, params, env, fn=None):
+        self.ast = ast
+        self.params = params
+        self.env = env
+        self.fn = fn
+
+    def __str__(self):
+        return "#<function>"
+
 # class Nil(Type):
 #     def __init__(self):
 #         pass

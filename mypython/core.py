@@ -3,7 +3,7 @@ import maltypes
 ns = {}
 
 ns[maltypes.Symbol("+")] = lambda x, y: x + y
-ns[maltypes.Symbol("-")] = lambda x, y: x - Y
+ns[maltypes.Symbol("-")] = lambda x, y: x - y
 ns[maltypes.Symbol("*")] = lambda x, y: x * y
 ns[maltypes.Symbol("/")] = lambda x, y: int(x / y)
 
