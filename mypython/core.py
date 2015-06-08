@@ -63,3 +63,12 @@ def slurp(filename):
         return f.read()
 
 ns[maltypes.Symbol("slurp")] = slurp
+
+ns[maltypes.Symbol("cons")] = lambda x, xs: [x] + xs
+
+def concat(*ls):
+    res = []
+    [res.extend(l) for l in ls]
+    return res
+
+ns[maltypes.Symbol("concat")] = concat

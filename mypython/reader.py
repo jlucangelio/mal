@@ -37,6 +37,18 @@ def read_form(reader):
         res = read_list(reader)
     elif c == "[":
         res = read_vector(reader)
+    elif c == "'":
+        reader.next()
+        res = [maltypes.Symbol("quote"), read_form(reader)]
+    elif c == "`":
+        reader.next()
+        res = [maltypes.Symbol("quasiquote"), read_form(reader)]
+    elif c == "~":
+        reader.next()
+        res = [maltypes.Symbol("unquote"), read_form(reader)]
+    elif c == "~@":
+        reader.next()
+        res = [maltypes.Symbol("splice-unquote"), read_form(reader)]
     else:
         res = read_atom(reader)
     return res
