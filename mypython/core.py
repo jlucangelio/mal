@@ -72,3 +72,12 @@ def concat(*ls):
     return res
 
 ns[maltypes.Symbol("concat")] = concat
+
+def first(l):
+    if len(l) > 0:
+        return l[0]
+    return None
+
+ns[maltypes.Symbol("nth")] = lambda l, n: l[n]
+ns[maltypes.Symbol("first")] = first
+ns[maltypes.Symbol("rest")] = lambda l: l[1:]

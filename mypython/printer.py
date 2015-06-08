@@ -8,7 +8,6 @@ def pr_str(node, print_readably=False):
     elif type(node) == int:
         return str(node)
     elif callable(node):
-        # return node.func_name
         return "#<function>"
     elif node == None:
         return "nil"

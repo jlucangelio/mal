@@ -19,11 +19,12 @@ class Symbol(Type):
         return self.name
 
 class Function(Type):
-    def __init__(self, ast, params, env, fn=None):
+    def __init__(self, ast, params, env, fn=None, is_macro=False):
         self.ast = ast
         self.params = params
         self.env = env
         self.fn = fn
+        self.is_macro = is_macro
 
     def __str__(self):
         return "#<function>"
