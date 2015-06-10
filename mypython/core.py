@@ -81,3 +81,18 @@ def first(l):
 ns[maltypes.Symbol("nth")] = lambda l, n: l[n]
 ns[maltypes.Symbol("first")] = first
 ns[maltypes.Symbol("rest")] = lambda l: l[1:]
+
+def throw(value):
+     raise maltypes.MalException(value)
+
+ns[maltypes.Symbol("throw")] = throw
+
+ns[maltypes.Symbol("apply")] = lambda f, *xs: f.fn(*(list(xs[0:-1]) + xs[-1]))
+ns[maltypes.Symbol("map")] = lambda f, xs: [f.fn(x) for x in xs]
+
+ns[maltypes.Symbol("nil?")] = lambda arg: arg is None
+ns[maltypes.Symbol("true?")] = lambda arg: arg == True
+ns[maltypes.Symbol("false?")] = lambda arg: arg == False
+ns[maltypes.Symbol("symbol?")] = lambda arg: type(arg) == maltypes.Symbol
+
+ns[maltypes.Symbol("symbol")] = lambda arg: maltypes.Symbol(arg)

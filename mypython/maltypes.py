@@ -29,6 +29,11 @@ class Function(Type):
     def __str__(self):
         return "#<function>"
 
+class MalException(Exception):
+    def __init__(self, value):
+        super(Exception, self).__init__("MalException")
+        self.value = value
+
 # class Nil(Type):
 #     def __init__(self):
 #         pass
