@@ -52,6 +52,12 @@ class Vector(Type):
     def __str__(self):
         return "[" + " ".join([str(e) for e in self.l]) + "]"
 
+    def __len__(self):
+        return len(self.l)
+
+    def __getitem__(self, i):
+        return self.l[i]
+
 class MalException(Exception):
     def __init__(self, value):
         super(Exception, self).__init__("MalException")

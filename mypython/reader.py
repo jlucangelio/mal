@@ -27,12 +27,15 @@ def read_str(string):
 
 def tokenizer(string):
     regex = re.compile(MATCH)
-    tokens = [token for token in regex.findall(string) if len(token) > 0]
+    tokens = [token for token in regex.findall(string) if len(token) > 0 and token[0] != ';']
     return tokens
 
 def read_form(reader):
     token = reader.peek()
     c = token[0]
+    if c == ';':
+        reader.next()
+        res = None
     if c == "(":
         res = read_list(reader)
     elif c == "[":

@@ -7,7 +7,11 @@ class Env:
         if type(binds) == maltypes.Vector:
             binds = binds.l
         for i, s in enumerate(binds):
-            self.set(s, exprs[i])
+            if s == "&":
+                self.set(binds[i + 1], exprs[i:])
+                break
+            else:
+                self.set(s, exprs[i])
 
     def set(self, symbol, value):
         self.data[symbol] = value

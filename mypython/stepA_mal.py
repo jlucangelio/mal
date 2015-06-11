@@ -30,8 +30,14 @@ def quasiquote(ast):
         return [maltypes.Symbol("cons"), quasiquote(ast[0]), quasiquote(ast[1:])]
 
 def is_macro_call(ast, env):
-    return (type(ast) == list and type(ast[0]) == maltypes.Symbol and
-            env.find(ast[0]) is not None and env.get(ast[0]).is_macro == True)
+    if (type(ast) == list and type(ast[0]) == maltypes.Symbol and
+        env.find(ast[0]) is not None):
+        f = env.get(ast[0])
+        if type(f) == maltypes.Function:
+            return f.is_macro
+    return False
+    # return (type(ast) == list and type(ast[0]) == maltypes.Symbol and
+    #         env.find(ast[0]) is not None and env.get(ast[0]).is_macro == True)
 
 def macroexpand(ast, env):
     while is_macro_call(ast, env) == True:
@@ -130,13 +136,16 @@ def EVAL(ast, env):
                 # Apply
                 l = eval_ast(ast, env)
                 f = l[0]
-                if f.ast is not None:
-                    ast = f.ast
-                    new_env = Env(f.env, f.params, l[1:])
-                    env = new_env
-                    continue
+                if type(f) == maltypes.Function:
+                    if f.ast is not None:
+                        ast = f.ast
+                        new_env = Env(f.env, f.params, l[1:])
+                        env = new_env
+                        continue
+                    else:
+                        return f.fn(*l[1:])
                 else:
-                    return f.fn(*l[1:])
+                    raise Exception("Not a mal function")
 
         else:
             return eval_ast(ast, env)
@@ -166,7 +175,9 @@ def main():
     for sym, fun in core.ns.iteritems():
         repl_env.set(sym, maltypes.Function(None, None, None, fun))
 
-    repl_env.set("eval", lambda ast: EVAL(ast, repl_env))
+    repl_env.set(maltypes.Symbol("eval"),
+                 maltypes.Function(None, None, None,
+                                   lambda ast: EVAL(ast, repl_env)))
 
     rep('(def! *host-language* "Python")')
     rep('(def! not (fn* (a) (if a false true)))')
