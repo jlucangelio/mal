@@ -1,7 +1,11 @@
+import maltypes
+
 class Env:
     def __init__(self, outer, binds=[], exprs=[]):
         self.outer = outer
         self.data = {}
+        if type(binds) == maltypes.Vector:
+            binds = binds.l
         for i, s in enumerate(binds):
             self.set(s, exprs[i])
 

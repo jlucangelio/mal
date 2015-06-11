@@ -26,13 +26,21 @@ class Keyword(Symbol):
     def __init__(self, name):
         self.name = name
 
+class Atom(Symbol):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return "(atom %s)" % self.value
+
 class Function(Type):
-    def __init__(self, ast, params, env, fn=None, is_macro=False):
+    def __init__(self, ast, params, env, fn=None, is_macro=False, metadata=None):
         self.ast = ast
         self.params = params
         self.env = env
         self.fn = fn
         self.is_macro = is_macro
+        self.metadata = metadata
 
     def __str__(self):
         return "#<function>"

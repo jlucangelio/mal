@@ -158,3 +158,29 @@ ns[maltypes.Symbol("get")] = get
 ns[maltypes.Symbol("contains?")] = lambda m, k: k in m
 ns[maltypes.Symbol("keys")] = lambda m: list(m.keys())
 ns[maltypes.Symbol("vals")] = lambda m: list(m.values())
+
+ns[maltypes.Symbol("readline")] = raw_input
+
+ns[maltypes.Symbol("atom")] = lambda v: maltypes.Atom(v)
+ns[maltypes.Symbol("deref")] = lambda a: a.value
+
+def reset(a, v):
+    a.value = v
+    return a.value
+
+ns[maltypes.Symbol("reset!")] = reset
+
+def swap(a, f, *args):
+    a.value = f.fn(a.value, *args)
+    return a.value
+
+ns[maltypes.Symbol("swap!")] = swap
+
+ns[maltypes.Symbol("meta")] = lambda f: f.metadata
+
+def withmeta(f, m):
+    fprime = copy.copy(f)
+    fprime.metadata = m
+    return fprime
+
+ns[maltypes.Symbol("with-meta")] = withmeta

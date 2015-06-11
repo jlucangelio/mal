@@ -51,6 +51,13 @@ def read_form(reader):
     elif c == "~@":
         reader.next()
         res = [maltypes.Symbol("splice-unquote"), read_form(reader)]
+    elif c == "^":
+        reader.next()
+        meta = read_form(reader)
+        return [maltypes.Symbol("with-meta"), read_form(reader), meta]
+    elif c == "@":
+        reader.next()
+        return [maltypes.Symbol('deref'), read_form(reader)]
     else:
         res = read_atom(reader)
     return res
