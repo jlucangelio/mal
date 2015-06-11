@@ -18,6 +18,14 @@ class Symbol(Type):
     def __str__(self):
         return self.name
 
+class Keyword(Symbol):
+    @classmethod
+    def fromstring(cls, string):
+        return cls(":" + string)
+
+    def __init__(self, name):
+        self.name = name
+
 class Function(Type):
     def __init__(self, ast, params, env, fn=None, is_macro=False):
         self.ast = ast
@@ -28,6 +36,13 @@ class Function(Type):
 
     def __str__(self):
         return "#<function>"
+
+class Vector(Type):
+    def __init__(self, elems):
+        self.l = list(elems)
+
+    def __str__(self):
+        return "[" + " ".join([str(e) for e in self.l]) + "]"
 
 class MalException(Exception):
     def __init__(self, value):

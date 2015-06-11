@@ -37,6 +37,8 @@ def read_form(reader):
         res = read_list(reader)
     elif c == "[":
         res = read_vector(reader)
+    elif c == "{":
+        res = read_map(reader)
     elif c == "'":
         reader.next()
         res = [maltypes.Symbol("quote"), read_form(reader)]
@@ -57,7 +59,7 @@ def read_list(reader):
     return read_seq(reader, "(", ")")
 
 def read_vector(reader):
-    return read_seq(reader, "[", "]")
+    return maltypes.Vector(read_seq(reader, "[", "]"))
 
 def read_seq(reader, b, e):
     res = []
@@ -65,6 +67,18 @@ def read_seq(reader, b, e):
     while reader.peek()[0] != e:
         res.append(read_form(reader))
     reader.next() # consume e
+    return res
+
+def read_map(reader):
+    res = {}
+    reader.next() # consume {
+    while reader.peek()[0] != "}":
+        k = read_form(reader)
+        v = read_form(reader)
+        if v == "}":
+            raise Exception("Odd number of elements in map")
+        res[k] = v
+    reader.next() # consume }
     return res
 
 def read_atom(reader):
@@ -82,6 +96,8 @@ def read_atom(reader):
             res = False
         elif token[0] == '"':
             res = token[1:-1].replace(r'\"', '"')
+        elif token[0] == ":":
+            res = maltypes.Keyword(token)
         else:
             res = maltypes.Symbol(token)
     return res

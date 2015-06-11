@@ -1,5 +1,6 @@
 import maltypes
 import printer, reader
+import copy
 
 ns = {}
 
@@ -87,12 +88,73 @@ def throw(value):
 
 ns[maltypes.Symbol("throw")] = throw
 
-ns[maltypes.Symbol("apply")] = lambda f, *xs: f.fn(*(list(xs[0:-1]) + xs[-1]))
-ns[maltypes.Symbol("map")] = lambda f, xs: [f.fn(x) for x in xs]
+def apply(f, *xs):
+    if vector_q(xs[-1]):
+        l = xs[-1].l
+    else:
+        l = xs[-1]
+    return f.fn(*(list(xs[0:-1]) + l))
+
+ns[maltypes.Symbol("apply")] = apply
+
+def map(f, xs):
+    if vector_q(xs):
+        l = xs.l
+    else:
+        l = xs
+    return [f.fn(e) for e in l]
+
+ns[maltypes.Symbol("map")] = map
 
 ns[maltypes.Symbol("nil?")] = lambda arg: arg is None
 ns[maltypes.Symbol("true?")] = lambda arg: arg == True
 ns[maltypes.Symbol("false?")] = lambda arg: arg == False
-ns[maltypes.Symbol("symbol?")] = lambda arg: type(arg) == maltypes.Symbol
 
 ns[maltypes.Symbol("symbol")] = lambda arg: maltypes.Symbol(arg)
+ns[maltypes.Symbol("symbol?")] = lambda arg: type(arg) == maltypes.Symbol
+
+ns[maltypes.Symbol("keyword")] = lambda arg: maltypes.Keyword.fromstring(arg)
+ns[maltypes.Symbol("keyword?")] = lambda arg: type(arg) == maltypes.Keyword
+
+ns[maltypes.Symbol("vector")] = lambda *xs: maltypes.Vector(xs)
+
+def vector_q(arg):
+    return type(arg) == maltypes.Vector
+
+ns[maltypes.Symbol("vector?")] = vector_q
+
+ns[maltypes.Symbol("sequential?")] = lambda arg: (type(arg) == list
+                                                  or type(arg) == maltypes.Vector)
+
+def make_dict(*args):
+    return dict([(args[i], args[i+1]) for i in range(0, len(args), 2)])
+
+ns[maltypes.Symbol("hash-map")] = make_dict
+ns[maltypes.Symbol("map?")] = lambda arg: type(arg) == dict
+
+def assoc(m, *xs):
+    mprime = copy.copy(m)
+    mprime.update(make_dict(*xs))
+    return mprime
+
+ns[maltypes.Symbol("assoc")] = assoc
+
+def dissoc(m, *keys):
+    res = copy.copy(m)
+    for k in keys:
+        if k in res:
+            del res[k]
+    return res
+
+ns[maltypes.Symbol("dissoc")] = dissoc
+
+def get(m, k):
+    if m is None:
+        return None
+    else:
+        return m.get(k, None)
+
+ns[maltypes.Symbol("get")] = get
+ns[maltypes.Symbol("contains?")] = lambda m, k: k in m
+ns[maltypes.Symbol("keys")] = lambda m: list(m.keys())
+ns[maltypes.Symbol("vals")] = lambda m: list(m.values())
