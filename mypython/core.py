@@ -20,14 +20,25 @@ ns[maltypes.Symbol("list?")] = lambda *x: type(x[0]) == list
 ns[maltypes.Symbol("empty?")] = lambda *x: len(x[0]) == 0
 ns[maltypes.Symbol("count")] = count
 
+def seq_equals(e, other):
+    seqs = [list, maltypes.Vector]
+    return (type(e) in seqs and type(other) in seqs
+            and len(e) == len(other)
+            and all([equals(e[i], other[i]) for i in range(len(e))]))
+
 def equals(e, other):
-    if type(e) != type(other):
+    if type(e) == list:
+        return seq_equals(e, other)
+    elif type(e) == maltypes.Vector:
+        return seq_equals(e, other)
+    elif type(e) != type(other):
         return False
     if type(e) == maltypes.Symbol:
         return e.name == other.name
     elif type(e) == list:
-        return (len(e) == len(other)
-                and all([equals(e[i], other[i]) for i in range(len(e))]))
+        return seq_equals(e, other)
+    elif type(e) == maltypes.Vector:
+        return seq_equals(e, other)
     else:
         return e == other
 
@@ -50,7 +61,7 @@ def prn(*args):
     return None
 
 def println(*args):
-    s = "".join([printer.pr_str(arg, False) for arg in args])
+    s = " ".join([printer.pr_str(arg, False) for arg in args])
     print s
     return None
 
@@ -65,7 +76,7 @@ def slurp(filename):
 
 ns[maltypes.Symbol("slurp")] = slurp
 
-ns[maltypes.Symbol("cons")] = lambda x, xs: [x] + xs
+ns[maltypes.Symbol("cons")] = lambda x, xs: [x] + list(xs)
 
 def concat(*ls):
     res = []
@@ -134,6 +145,10 @@ ns[maltypes.Symbol("map?")] = lambda arg: type(arg) == dict
 
 def assoc(m, *xs):
     mprime = copy.copy(m)
+    # TODO: Figure why this is needed.
+    if type(mprime) ==  tuple:
+        m = m[0]
+        mprime = mprime[0]
     mprime.update(make_dict(*xs))
     return mprime
 
@@ -162,6 +177,7 @@ ns[maltypes.Symbol("vals")] = lambda m: list(m.values())
 ns[maltypes.Symbol("readline")] = raw_input
 
 ns[maltypes.Symbol("atom")] = lambda v: maltypes.Atom(v)
+ns[maltypes.Symbol("atom?")] = lambda a: type(a) == maltypes.Atom
 ns[maltypes.Symbol("deref")] = lambda a: a.value
 
 def reset(a, v):

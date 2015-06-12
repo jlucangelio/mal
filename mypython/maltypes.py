@@ -34,16 +34,18 @@ class Atom(Symbol):
         return "(atom %s)" % self.value
 
 class Function(Type):
-    def __init__(self, ast, params, env, fn=None, is_macro=False, metadata=None):
+    def __init__(self, ast, params, env, fn=None, is_macro=False, metadata=None,
+                       name="#<function>"):
         self.ast = ast
         self.params = params
         self.env = env
         self.fn = fn
         self.is_macro = is_macro
         self.metadata = metadata
+        self.name = name
 
     def __str__(self):
-        return "#<function>"
+        return "#<%s>" % self.name
 
 class Vector(Type):
     def __init__(self, elems):

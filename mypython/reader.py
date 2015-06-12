@@ -2,7 +2,7 @@ import re
 
 import maltypes
 
-MATCH = """[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"`,;)]*)"""
+MATCH = r"""[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"`,;)]*)"""
 
 class Reader:
     def __init__(self, tokens):
@@ -48,12 +48,12 @@ def read_form(reader):
     elif c == "`":
         reader.next()
         res = [maltypes.Symbol("quasiquote"), read_form(reader)]
+    elif token == "~@":
+        reader.next()
+        res = [maltypes.Symbol("splice-unquote"), read_form(reader)]
     elif c == "~":
         reader.next()
         res = [maltypes.Symbol("unquote"), read_form(reader)]
-    elif c == "~@":
-        reader.next()
-        res = [maltypes.Symbol("splice-unquote"), read_form(reader)]
     elif c == "^":
         reader.next()
         meta = read_form(reader)
@@ -105,7 +105,7 @@ def read_atom(reader):
         elif token == "false":
             res = False
         elif token[0] == '"':
-            res = token[1:-1].replace(r'\"', '"')
+            res = token[1:-1].replace('\\"', '"')
         elif token[0] == ":":
             res = maltypes.Keyword(token)
         else:

@@ -18,10 +18,10 @@ def pr_str(node, print_readably=False):
         return "true"
     elif node == False:
         return "false"
-    elif type(node) == str:
+    elif type(node) == str or type(node) == unicode:
         if print_readably:
-            return '"%s"' % node.replace('"', r'\"')
+            return '"%s"' % node.encode('unicode_escape').decode('latin1').replace('"', '\\"')
         else:
             return node
     else:
-        raise Exception("Invalid type")
+        raise Exception("Invalid type %s" % type(node))

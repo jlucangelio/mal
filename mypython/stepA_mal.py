@@ -30,14 +30,8 @@ def quasiquote(ast):
         return [maltypes.Symbol("cons"), quasiquote(ast[0]), quasiquote(ast[1:])]
 
 def is_macro_call(ast, env):
-    if (type(ast) == list and type(ast[0]) == maltypes.Symbol and
-        env.find(ast[0]) is not None):
-        f = env.get(ast[0])
-        if type(f) == maltypes.Function:
-            return f.is_macro
-    return False
-    # return (type(ast) == list and type(ast[0]) == maltypes.Symbol and
-    #         env.find(ast[0]) is not None and env.get(ast[0]).is_macro == True)
+    return (type(ast) == list and type(ast[0]) == maltypes.Symbol and
+            env.find(ast[0]) is not None and env.get(ast[0]).is_macro == True)
 
 def macroexpand(ast, env):
     while is_macro_call(ast, env) == True:
@@ -155,9 +149,7 @@ def PRINT(ast):
     return res
 
 def eval_ast(ast, env):
-    if type(ast) == maltypes.Symbol:
-        return env.get(ast)
-    elif type(ast) == list:
+    if type(ast) == list:
         return [EVAL(e, env) for e in ast]
     elif type(ast) == dict:
         items = []
@@ -165,6 +157,10 @@ def eval_ast(ast, env):
             items.append(EVAL(k, env))
             items.append(EVAL(ast[k], env))
         return core.make_dict(*items)
+    elif type(ast) == maltypes.Vector:
+        return maltypes.Vector([EVAL(e, env) for e in ast])
+    elif type(ast) == maltypes.Symbol:
+        return env.get(ast)
     else:
         return ast
 
@@ -172,18 +168,19 @@ def rep(line):
     return PRINT(EVAL(READ(line), repl_env))
 
 def main():
-    for sym, fun in core.ns.iteritems():
-        repl_env.set(sym, maltypes.Function(None, None, None, fun))
+    for sym, func in core.ns.iteritems():
+        repl_env.set(sym, maltypes.Function(None, None, None, func, name=sym.name))
 
     repl_env.set(maltypes.Symbol("eval"),
                  maltypes.Function(None, None, None,
-                                   lambda ast: EVAL(ast, repl_env)))
+                                   lambda ast: EVAL(ast, repl_env),
+                                   name="eval"));
 
     rep('(def! *host-language* "Python")')
     rep('(def! not (fn* (a) (if a false true)))')
     rep('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) ")")))))')
-    # rep("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))")
-    # rep("(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))")
+    rep("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))")
+    rep("(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))")
 
     repl_env.set("*ARGV*", sys.argv[2:])
     if len(sys.argv) > 1:
